@@ -1,20 +1,24 @@
-# Classe nodo para definiçao dos nodos
+from graph.position import Position
 
 class Node:
-    def __init__(self, name, lat=None, lon=None):     #  construtor do nodo....."
-        self.m_id = id
-        self.m_name = str(name)
-        self.lat = lat
-        self.lon = lon
+    def __init__(self, name, position: Position, node_type="generic", capacity=0):
+        """
+        Representa um ponto da cidade.
+        :param id: identificador único do nodo
+        :param x, y: Coordenadas no mapa (em metros)
+        :param node_type: Tipo do nó ('pickup', 'charging', 'fuel', 'depot', etc.)
+        :param capacity: Capacidade (representar estações ou zonas com limite de veículos)
+        """
+        self.id = None
+        self.position = position
+        self.node_type = node_type
+        self.capacity = capacity
 
-    def setId(self, id):
-        self.m_id = id
+    def get_id(self):
+        return self.id
 
-    def getId(self):
-        return self.m_id
-
-    def __eq__(self, other):
-        return self.m_name == other.m_name  
+    def set_id(self, id):
+        self.id = id
 
     def __repr__(self):
-        return f"Node({self.m_name}, lat={self.lat}, lon={self.lon})"
+        return f"Node(id={self.id}, type={self.node_type}, pos=({self.position.x:.2f}, {self.position.y:.2f}))"
