@@ -16,6 +16,10 @@ def create_location_graph(place_name="Gualtar, Braga, Portugal"): # mudar depois
     # Projeta o grafo para coordenadas métricas, i.e, converte latitude/longitude para x, y em metros
     G_proj = ox.project_graph(G_osm)
 
+    # Adiciona velocidades e tempos de viagem ao grafo JÁ projetado
+    G_proj = ox.add_edge_speeds(G_proj)         # acrescenta 'speed_kph' se possível
+    G_proj = ox.add_edge_travel_times(G_proj)   # acrescenta 'travel_time' (seconds)
+
     # Converte para GeoDataFrames (para aceder facilmente aos dados dos nós e arestas)
     nodes, edges = ox.graph_to_gdfs(G_proj)
 
@@ -31,7 +35,7 @@ def create_location_graph(place_name="Gualtar, Braga, Portugal"): # mudar depois
             id_u = graph.osm_to_internal[u]
             id_v = graph.osm_to_internal[v]
             length = edge.get("length", None)
-            graph.add_edge(id_u, id_v, distance=length)
+            graph.add_edge(id_u, id_v, distance=length, edge_speed=edge.get("speed_kph", 50))
     
     print(f"Grafo criado com {len(graph.nodes)} nós e {sum(len(e) for e in graph.edges.values())} arestas.")
     return graph
