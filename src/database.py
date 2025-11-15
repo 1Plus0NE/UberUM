@@ -1,5 +1,6 @@
 import json
 
+from graph.position import Position
 from location import create_location_graph
 from vehicle import Vehicle, Eletric, Combustion, Hybrid, Vehicle_Status
 
@@ -10,6 +11,7 @@ class Database:
     def __init__(self, vehicles, graph):
         self.vehicles = vehicles
         self.graph = graph
+        #self.requests = requests
     
     '''
     Lists all vehicles in the database 
@@ -17,10 +19,14 @@ class Database:
     def list_vehicles(self):
         print("\n--- Lista de Veículos ---\n")
         for v in self.vehicles:
-            print(f"[{v.id}] {v.name} ({v.vehicle_type.__class__.__name__}) - Condutor: {v.driver}")
+            print(f"[{v.id}] {v.name} ({v.vehicle_type.__class__.__name__}) - Condutor: {v.driver} - Posição atual: {v.start_point}")
         print(f"\nTotal: {len(self.vehicles)} veículos\n")
 
-def load_dataset(dataset_path):
+def parse_position(value: str) -> Position:
+    x_str, y_str = value.split(",")
+    return Position(float(x_str), float(y_str))
+
+def load_dataset(dataset_path) -> Database:
     """
     Loads and processes the dataset to initialize the database of the simulation.
     
@@ -40,38 +46,39 @@ def load_dataset(dataset_path):
         # Creates the vehicle type according to its type
         if vehicle["type"] == "eletric":
             vehicle_type = Eletric(
-                battery_capacity=vehicle["battery_capacity"],
-                current_battery=vehicle["current_battery"],
-                battery_consumption=vehicle["battery_consumption"]
+                battery_capacity = vehicle["battery_capacity"],
+                current_battery = vehicle["current_battery"],
+                battery_consumption = vehicle["battery_consumption"]
             )
 
         elif vehicle["type"] == "combustion":
             vehicle_type = Combustion(
-                fuel_capacity=vehicle["fuel_capacity"],
-                current_fuel=vehicle["current_fuel"],
-                fuel_consumption=vehicle["fuel_consumption"]
+                fuel_capacity = vehicle["fuel_capacity"],
+                current_fuel = vehicle["current_fuel"],
+                fuel_consumption = vehicle["fuel_consumption"]
             )
 
         elif vehicle["type"] == "hybrid":
             vehicle_type = Hybrid(
-                battery_capacity=vehicle["battery_capacity"],
-                current_battery=vehicle["current_battery"],
-                battery_consumption=vehicle["battery_consumption"],
-                fuel_capacity=vehicle["fuel_capacity"],
-                current_fuel=vehicle["current_fuel"],
-                fuel_consumption=vehicle["fuel_consumption"]
+                battery_capacity = vehicle["battery_capacity"],
+                current_battery = vehicle["current_battery"],
+                battery_consumption = vehicle["battery_consumption"],
+                fuel_capacity = vehicle["fuel_capacity"],
+                current_fuel = vehicle["current_fuel"],
+                fuel_consumption = vehicle["fuel_consumption"]
             )
         else:
             raise ValueError(f"Unknown vehicle type: {vehicle['type']}")
 
         # Creates the vehicle
         vehicle = Vehicle(
-            id=vehicle["id"],
-            name=vehicle["name"],
-            vehicle_type=vehicle_type,
-            capacity=vehicle["capacity"],
-            driver=vehicle["driver"],
-            status=Vehicle_Status[vehicle["status"]]
+            id = vehicle["id"],
+            name = vehicle["name"],
+            vehicle_type = vehicle_type,
+            capacity = vehicle["capacity"],
+            driver = vehicle["driver"],
+            status = Vehicle_Status[vehicle["status"]],
+            start_point = parse_position(vehicle["start_point"]),
         )
 
         vehicles.append(vehicle)

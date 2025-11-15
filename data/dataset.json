@@ -8,6 +8,7 @@
       "capacity": 5,
       "status": "IDLE",
       "type": "eletric",
+      "start_point": "50000, 60000",
       "battery_capacity": 45,
       "current_battery": 40,
       "battery_consumption": 0.15
@@ -18,6 +19,7 @@
       "driver": "Maria",
       "capacity": 5,
       "status": "IDLE",
+      "start_point": "50000, 60000",
       "type": "combustion",
       "fuel_capacity": 40,
       "current_fuel": 30,
@@ -30,6 +32,7 @@
       "capacity": 5,
       "status": "IDLE",
       "type": "hybrid",
+      "start_point": "50000, 60000",
       "battery_capacity": 8,
       "current_battery": 6,
       "battery_consumption": 0.12,
