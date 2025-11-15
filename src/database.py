@@ -1,7 +1,9 @@
 import json
 
+from graph.position import Position
 from location import create_location_graph
 from vehicle import Vehicle, Eletric, Combustion, Hybrid, Vehicle_Status
+from request import Request
 
 class Database:
     '''
@@ -10,6 +12,7 @@ class Database:
     def __init__(self, vehicles, graph):
         self.vehicles = vehicles
         self.graph = graph
+        #self.requests = requests
     
     '''
     Lists all vehicles in the database 
@@ -17,10 +20,16 @@ class Database:
     def list_vehicles(self):
         print("\n--- Lista de Veículos ---\n")
         for v in self.vehicles:
-            print(f"[{v.id}] {v.name} ({v.vehicle_type.__class__.__name__}) - Condutor: {v.driver}")
+            print(f"[{v.id}] {v.name} ({v.vehicle_type.__class__.__name__}) - Condutor: {v.driver} - Posição atual: {v.start_point}")
         print(f"\nTotal: {len(self.vehicles)} veículos\n")
 
-def load_dataset(dataset_path):
+def get_position_from_node_id(graph, node_id: int) -> Position:
+    node = graph.get_node(node_id)
+    if node is None:
+        raise ValueError(f"Node id {node_id} not found in graph")
+    return node.position
+
+def load_dataset(dataset_path) -> Database:
     """
     Loads and processes the dataset to initialize the database of the simulation.
     
@@ -40,40 +49,57 @@ def load_dataset(dataset_path):
         # Creates the vehicle type according to its type
         if vehicle["type"] == "eletric":
             vehicle_type = Eletric(
-                battery_capacity=vehicle["battery_capacity"],
-                current_battery=vehicle["current_battery"],
-                battery_consumption=vehicle["battery_consumption"]
+                battery_capacity = vehicle["battery_capacity"],
+                current_battery = vehicle["current_battery"],
+                battery_consumption = vehicle["battery_consumption"]
             )
 
         elif vehicle["type"] == "combustion":
             vehicle_type = Combustion(
-                fuel_capacity=vehicle["fuel_capacity"],
-                current_fuel=vehicle["current_fuel"],
-                fuel_consumption=vehicle["fuel_consumption"]
+                fuel_capacity = vehicle["fuel_capacity"],
+                current_fuel = vehicle["current_fuel"],
+                fuel_consumption = vehicle["fuel_consumption"]
             )
 
         elif vehicle["type"] == "hybrid":
             vehicle_type = Hybrid(
-                battery_capacity=vehicle["battery_capacity"],
-                current_battery=vehicle["current_battery"],
-                battery_consumption=vehicle["battery_consumption"],
-                fuel_capacity=vehicle["fuel_capacity"],
-                current_fuel=vehicle["current_fuel"],
-                fuel_consumption=vehicle["fuel_consumption"]
+                battery_capacity = vehicle["battery_capacity"],
+                current_battery = vehicle["current_battery"],
+                battery_consumption = vehicle["battery_consumption"],
+                fuel_capacity = vehicle["fuel_capacity"],
+                current_fuel = vehicle["current_fuel"],
+                fuel_consumption = vehicle["fuel_consumption"]
             )
         else:
             raise ValueError(f"Unknown vehicle type: {vehicle['type']}")
 
-        # Creates the vehicle
+        # start_point agora é o id do nó
+        start_point_pos = get_position_from_node_id(graph, vehicle["start_point"])
         vehicle = Vehicle(
-            id=vehicle["id"],
-            name=vehicle["name"],
-            vehicle_type=vehicle_type,
-            capacity=vehicle["capacity"],
-            driver=vehicle["driver"],
-            status=Vehicle_Status[vehicle["status"]]
+            id = vehicle["id"],
+            name = vehicle["name"],
+            vehicle_type = vehicle_type,
+            capacity = vehicle["capacity"],
+            driver = vehicle["driver"],
+            status = Vehicle_Status[vehicle["status"]],
+            start_point = start_point_pos,
         )
 
         vehicles.append(vehicle)
 
-    return Database(vehicles, graph)
+    requests = []
+    for req in dataset.get("requests", []):
+        start_pos = get_position_from_node_id(graph, req["start_point"])
+        end_pos = get_position_from_node_id(graph, req["end_point"])
+        requests.append(Request(
+            start_point=start_pos,
+            end_point=end_pos,
+            requested_time=req["requested_time"],
+            multiple_people=req["multiple_people"],
+            passengers=req["passengers"],
+            id=req.get("id", None)
+        ))
+
+    db = Database(vehicles, graph)
+    db.requests = requests  # Adiciona requests ao objeto Database
+    return db

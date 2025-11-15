@@ -8,6 +8,7 @@
       "capacity": 5,
       "status": "IDLE",
       "type": "eletric",
+  "start_point": 0,
       "battery_capacity": 45,
       "current_battery": 40,
       "battery_consumption": 0.15
@@ -18,6 +19,7 @@
       "driver": "Maria",
       "capacity": 5,
       "status": "IDLE",
+  "start_point": 0,
       "type": "combustion",
       "fuel_capacity": 40,
       "current_fuel": 30,
@@ -30,12 +32,135 @@
       "capacity": 5,
       "status": "IDLE",
       "type": "hybrid",
+  "start_point": 0,
       "battery_capacity": 8,
       "current_battery": 6,
       "battery_consumption": 0.12,
       "fuel_capacity": 40,
       "current_fuel": 35,
       "fuel_consumption": 0.06
+    }
+  ],
+    "requests": [
+    {
+      "id": 1,
+      "start_point": 9,
+      "end_point": 8,
+      "requested_time": 480,
+      "multiple_people": false,
+      "passengers": 1
+    },
+    {
+      "id": 2,
+      "start_point": 3,
+      "end_point": 50,
+      "requested_time": 510,
+      "multiple_people": true,
+      "passengers": 2
+    },
+    {
+      "id": 3,
+      "start_point": 15,
+      "end_point": 25,
+      "requested_time": 495,
+      "multiple_people": false,
+      "passengers": 1
+    },
+    {
+      "id": 4,
+      "start_point": 20,
+      "end_point": 5,
+      "requested_time": 520,
+      "multiple_people": true,
+      "passengers": 3
+    },
+    {
+      "id": 5,
+      "start_point": 30,
+      "end_point": 10,
+      "requested_time": 540,
+      "multiple_people": false,
+      "passengers": 1
+    },
+    {
+      "id": 6,
+      "start_point": 12,
+      "end_point": 45,
+      "requested_time": 555,
+      "multiple_people": true,
+      "passengers": 2
+    },
+    {
+      "id": 7,
+      "start_point": 40,
+      "end_point": 18,
+      "requested_time": 570,
+      "multiple_people": false,
+      "passengers": 1
+    },
+    {
+      "id": 8,
+      "start_point": 7,
+      "end_point": 35,
+      "requested_time": 600,
+      "multiple_people": false,
+      "passengers": 1
+    },
+    {
+      "id": 9,
+      "start_point": 22,
+      "end_point": 48,
+      "requested_time": 615,
+      "multiple_people": true,
+      "passengers": 4
+    },
+    {
+      "id": 10,
+      "start_point": 33,
+      "end_point": 14,
+      "requested_time": 630,
+      "multiple_people": false,
+      "passengers": 2
+    },
+    {
+      "id": 11,
+      "start_point": 11,
+      "end_point": 42,
+      "requested_time": 660,
+      "multiple_people": true,
+      "passengers": 3
+    },
+    {
+      "id": 12,
+      "start_point": 28,
+      "end_point": 6,
+      "requested_time": 675,
+      "multiple_people": false,
+      "passengers": 1
+    },
+    {
+      "id": 13,
+      "start_point": 16,
+      "end_point": 38,
+      "requested_time": 690,
+      "multiple_people": false,
+      "passengers": 1
+    },
+    {
+      "id": 14,
+      "start_point": 44,
+      "end_point": 21,
+      "requested_time": 720,
+      "multiple_people": true,
+      "passengers": 2
+    },
+    {
+      "id": 15,
+      "start_point": 19,
+      "end_point": 31,
+      "requested_time": 735,
+      "multiple_people": false,
+      "passengers": 1
     }
   ]
 }

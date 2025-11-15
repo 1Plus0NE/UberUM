@@ -1,0 +1,258 @@
+"""
+Módulo de visualização da simulação.
+Responsável por toda a lógica de desenho e animação.
+"""
+
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
+
+
+class Visualizer:
+    """
+    Gerencia a visualização da simulação usando Matplotlib.
+    Completamente separado da lógica de negócio.
+    """
+    
+    def __init__(self, simulation, interval=100, show_times=True, show_distances=False):
+        """
+        Inicializa o visualizador.
+        
+        Args:
+            simulation: Instância de Simulation
+            interval: Intervalo entre frames em ms (100ms = 10 FPS)
+            show_times: Mostrar tempos nas arestas
+            show_distances: Mostrar distâncias nas arestas
+        """
+        self.simulation = simulation
+        self.interval = interval
+        self.show_times = show_times
+        self.show_distances = show_distances
+        
+        # Referências aos elementos visuais
+        self.fig = None
+        self.ax = None
+        self.taxi_markers = []
+        self.taxi_labels = []
+        self.pickup_markers = []
+        self.pickup_labels = []
+        self.dropoff_markers = []
+        self.dropoff_labels = []
+        self.title_text = None
+        self.stats_text = None
+    
+    def setup_figure(self):
+        """Cria e configura a figura."""
+        self.fig, self.ax = plt.subplots(figsize=(20, 18))
+        
+        # Desenha o grafo estático (apenas uma vez)
+        self.simulation.graph.draw(
+            self.ax, 
+            show_times=self.show_times, 
+            show_distances=self.show_distances, 
+            requests=None
+        )
+    
+    def create_markers(self):
+        """Cria todos os marcadores visuais."""
+        self._create_taxi_markers()
+        self._create_request_markers()
+        self._create_text_elements()
+    
+    def _create_taxi_markers(self):
+        """Cria marcadores para táxis."""
+        for taxi in self.simulation.vehicles:
+            # Marcador
+            marker, = self.ax.plot([], [], 'o', markersize=10, zorder=6)
+            self.taxi_markers.append(marker)
+            
+            # Label
+            label = self.ax.text(0, 0, '', fontsize=8, ha='center', zorder=7)
+            self.taxi_labels.append(label)
+    
+    def _create_request_markers(self):
+        """Cria marcadores para requests (pickup e dropoff)."""
+        for req in self.simulation.requests:
+            # Pickup marker (azul)
+            p_marker, = self.ax.plot(
+                [], [], '*', color='blue', markersize=15,
+                markeredgecolor='white', markeredgewidth=1.5, zorder=7
+            )
+            self.pickup_markers.append(p_marker)
+            
+            p_label = self.ax.text(
+                0, 0, '', fontsize=8, ha='center', 
+                color='blue', fontweight='bold', zorder=8
+            )
+            self.pickup_labels.append(p_label)
+            
+            # Dropoff marker (laranja)
+            d_marker, = self.ax.plot(
+                [], [], '*', color='orange', markersize=15,
+                markeredgecolor='white', markeredgewidth=1.5, zorder=7
+            )
+            self.dropoff_markers.append(d_marker)
+            
+            d_label = self.ax.text(
+                0, 0, '', fontsize=8, ha='center',
+                color='orange', fontweight='bold', zorder=8
+            )
+            self.dropoff_labels.append(d_label)
+    
+    def _create_text_elements(self):
+        """Cria elementos de texto (título e estatísticas)."""
+        # Título
+        self.title_text = self.ax.text(
+            0.5, 1.02, '', transform=self.ax.transAxes,
+            ha='center', fontsize=14, fontweight='bold'
+        )
+        
+        # Estatísticas
+        self.stats_text = self.ax.text(
+            0.02, 0.98, '', transform=self.ax.transAxes,
+            ha='left', va='top', fontsize=10,
+            bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.8)
+        )
+    
+    def update_taxi_markers(self):
+        """Atualiza posição e cor dos marcadores de táxis."""
+        for taxi, marker, label in zip(
+            self.simulation.vehicles, 
+            self.taxi_markers, 
+            self.taxi_labels
+        ):
+            x, y = taxi.current_position.x, taxi.current_position.y
+            
+            # Atualiza posição do marcador
+            marker.set_data([x], [y])
+            
+            # Atualiza cor baseada no status
+            if taxi.status.name == 'IDLE':
+                marker.set_color('green')
+            elif taxi.status.name == 'TRAVELING':
+                marker.set_color('red')
+            else:
+                marker.set_color('gray')
+            
+            # Atualiza label
+            label.set_position((x, y + 2))
+            label.set_text(f"{taxi.id}")
+    
+    def update_request_markers(self):
+        """Atualiza marcadores de requests (pickup/dropoff)."""
+        for req, p_marker, p_label, d_marker, d_label in zip(
+            self.simulation.requests,
+            self.pickup_markers,
+            self.pickup_labels,
+            self.dropoff_markers,
+            self.dropoff_labels
+        ):
+            if req.status == 'pending' or req.status == 'assigned':
+                # Mostra pickup point
+                p_marker.set_data([req.start_point.x], [req.start_point.y])
+                p_label.set_position((req.start_point.x, req.start_point.y + 3))
+                p_label.set_text(f"P{req.id}")
+                # Esconde dropoff
+                d_marker.set_data([], [])
+                d_label.set_text('')
+                
+            elif req.status == 'picked_up':
+                # Esconde pickup
+                p_marker.set_data([], [])
+                p_label.set_text('')
+                # Mostra dropoff point
+                d_marker.set_data([req.end_point.x], [req.end_point.y])
+                d_label.set_position((req.end_point.x, req.end_point.y + 3))
+                d_label.set_text(f"D{req.id}")
+                
+            else:  # completed
+                # Esconde ambos
+                p_marker.set_data([], [])
+                p_label.set_text('')
+                d_marker.set_data([], [])
+                d_label.set_text('')
+    
+    def update_text(self):
+        """Atualiza título e estatísticas."""
+        # Título com tempo
+        self.title_text.set_text(
+            f"Simulação - Tempo: {self.simulation.get_time_string()}"
+        )
+        
+        # Estatísticas
+        stats = self.simulation.stats
+        stats_str = (
+            f"Requests:\n"
+            f"  Completados: {stats['requests_completed']}\n"
+            f"  Em andamento: {stats.get('requests_in_progress', 0)}\n"
+            f"  Pendentes: {stats['requests_pending']}\n"
+            f"  Total: {len(self.simulation.requests)}\n"
+            f"\n"
+            f"Táxis IDLE: {len(self.simulation.get_available_vehicles())}"
+        )
+        self.stats_text.set_text(stats_str)
+    
+    def get_all_artists(self):
+        """Retorna lista de todos os artistas para blit."""
+        return (
+            self.taxi_markers + 
+            self.taxi_labels + 
+            self.pickup_markers + 
+            self.pickup_labels + 
+            self.dropoff_markers + 
+            self.dropoff_labels + 
+            [self.title_text, self.stats_text]
+        )
+    
+    def init_animation(self):
+        """Inicialização da animação."""
+        return self.get_all_artists()
+    
+    def update_frame(self, frame):
+        """
+        Atualiza um frame da animação.
+        
+        Args:
+            frame: Número do frame atual
+            
+        Returns:
+            Lista de artistas atualizados
+        """
+        # Executa um passo da simulação
+        step_info = self.simulation.step()
+        
+        if step_info['finished']:
+            return self.get_all_artists()
+        
+        # Atualiza todos os elementos visuais
+        self.update_taxi_markers()
+        self.update_request_markers()
+        self.update_text()
+        
+        return self.get_all_artists()
+    
+    def run(self):
+        """
+        Executa a visualização animada completa.
+        
+        Returns:
+            FuncAnimation: Objeto de animação
+        """
+        # Setup
+        self.setup_figure()
+        self.create_markers()
+        
+        # Cria animação
+        total_frames = self.simulation.end_time - self.simulation.current_time
+        
+        anim = FuncAnimation(
+            self.fig,
+            self.update_frame,
+            init_func=self.init_animation,
+            frames=total_frames,
+            interval=self.interval,
+            blit=True,
+            repeat=False
+        )
+        
+        plt.show()
+        return anim
