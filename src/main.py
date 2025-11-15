@@ -1,5 +1,45 @@
 from database import load_dataset
 
+def assign_request(request, vehicles, current_time, search_algorithm, db):
+    # search_algorithm: função que recebe (graph, origem, destino) e retorna o caminho/custo
+
+    available_vehicles = [v for v in vehicles if v.is_available(current_time)]
+    if not available_vehicles:
+        return None
+
+    # Encontra o veículo com menor custo usando o algoritmo de procura
+    best_vehicle = None
+    best_cost = float('inf')
+    for v in available_vehicles:
+        cost = search_algorithm(v.position, request['origin'], db.graph)
+        if cost < best_cost:
+            best_cost = cost
+            best_vehicle = v
+
+    if best_vehicle:
+        best_vehicle.assign(request, current_time)
+    return best_vehicle
+
+
+def run_simulation():
+    current_time = 8 * 60  # 8h00 em minutos
+    end_time = 20 * 60     # 20h00 em minutos
+
+    requests = load_requests()
+    taxis = initialize_taxis()
+
+    while current_time < end_time:
+        new_requests = [r for r in requests if r.time == current_time]
+        for req in new_requests:
+            assign_request(req, taxis)
+        update_taxis(taxis, current_time)
+        #log_metrics(taxis, current_time)
+        current_time += 1
+
+if __name__ == "__main__":
+    run_simulation()
+
+
 def main():
     print("\n--- UberUM: Visualização de Grafo Urbano ---\n")
     db = load_dataset("../data/dataset.json")
