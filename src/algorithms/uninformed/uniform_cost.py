@@ -18,6 +18,8 @@ def uniform_cost_search(start: Position, goal: Position, graph: Graph) -> Tuple[
             continue
         visited.add(current.id)
         for edge in graph.edges[current.id]:
+            if not edge.get("open", True):
+                continue
             neighbor = graph.get_node(edge["target"])
             if neighbor.id not in visited:
                 heapq.heappush(open_set, (cost + edge["distance"], neighbor, path + [neighbor.id]))

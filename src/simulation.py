@@ -91,30 +91,34 @@ class Simulation:
         best_refuel_info = None
         
         for vehicle in available_vehicles:
+            # Verifica se o veículo tem capacidade suficiente para o pedido
+            if hasattr(request, 'passengers') and vehicle.capacity < request.passengers:
+                continue
+
             # Caminho: veículo → pickup
             cost1, time1, path1 = self.search_algorithm(
                 vehicle.current_position, 
                 request.start_point, 
                 self.graph
             )
-            
+
             # Caminho: pickup → destino
             cost2, time2, path2 = self.search_algorithm(
                 request.start_point, 
                 request.end_point, 
                 self.graph
             )
-            
+
             # Calcula distância total da viagem completa
             total_distance = calculate_total_distance(self.graph, path1)
             total_distance += calculate_total_distance(self.graph, path2)
-            
+
             # Verifica se precisa abastecer
             refuel_needed = needs_refuel(vehicle, total_distance)
             refuel_time = 0
             refuel_station = None
             refuel_path = None
-            
+
             if refuel_needed:
                 # Encontra estação mais próxima
                 station_type = get_station_type_for_vehicle(vehicle)
@@ -123,7 +127,7 @@ class Simulation:
                     vehicle.current_position, 
                     station_type
                 )
-                
+
                 if refuel_station:
                     # Calcula caminho até a estação
                     station_cost, station_time, station_path = self.search_algorithm(
@@ -131,27 +135,27 @@ class Simulation:
                         refuel_station.position,
                         self.graph
                     )
-                    
+
                     # Recalcula caminho da estação até o pickup
                     cost1_new, time1_new, path1_new = self.search_algorithm(
                         refuel_station.position,
                         request.start_point,
                         self.graph
                     )
-                    
+
                     # Tempo total de abastecimento (baseado no tipo de estação)
                     refuel_time = get_refuel_time(vehicle, station_type)
-                    
+
                     # Ajusta custos
                     cost1 = station_cost + cost1_new
                     time1 = station_time + refuel_time + time1_new
-                    
+
                     # Atualiza caminhos
                     refuel_path = station_path
                     path1 = path1_new
-            
+
             total_cost = cost1 + cost2
-            
+
             if total_cost < best_cost:
                 best_cost = total_cost
                 best_vehicle = vehicle
