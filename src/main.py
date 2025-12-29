@@ -4,7 +4,7 @@ Interface de linha de comando limpa e modular.
 """
 
 from database import load_dataset
-from algorithms import DFS, BFS, Dijkstra
+from algorithms import ALGORITHMS
 from simulation import Simulation
 from visualizer import Visualizer
 
@@ -12,10 +12,13 @@ from visualizer import Visualizer
 class Menu:
     """Classe para gerenciar o menu da aplicação."""
     
+    from algorithms import ALGORITHMS as ALGO_DICT
     ALGORITHMS = {
-        '1': ('DFS', DFS.find_path, '❌ Rápido mas caminhos longos'),
-        '2': ('BFS', BFS.find_path, '🟡 Menor número de arestas'),
-        '3': ('Dijkstra', Dijkstra.find_path, '⭐ MENOR TEMPO (Recomendado)'),
+        '1': ('A*', ALGO_DICT['a_star'], '⭐ Menor tempo (A*)'),
+        '2': ('Greedy', ALGO_DICT['greedy'], '🟡 Heurística rápida'),
+        '3': ('BFS', ALGO_DICT['bfs'], '❌ Menor número de arestas'),
+        '4': ('DFS', ALGO_DICT['dfs'], '❌ Caminhos longos'),
+        '5': ('Uniform Cost', ALGO_DICT['uniform_cost'], '⭐ Menor custo (Uniform Cost)'),
     }
     
     @staticmethod
@@ -45,8 +48,8 @@ class Menu:
             print(f"\n✓ Algoritmo selecionado: {name}")
             return name, func
         else:
-            print(f"\n⚠ Opção inválida, usando Dijkstra")
-            return 'Dijkstra', Dijkstra.find_path
+            print(f"\n⚠ Opção inválida, usando A*")
+            return 'A*', ALGORITHMS['a_star']
     
     @staticmethod
     def choose_visualization():
@@ -83,32 +86,6 @@ class Menu:
             'show_distances': not show_times
         }
     
-    @staticmethod
-    def main_menu():
-        """
-        Menu principal da aplicação.
-        
-        Returns:
-            str: Opção escolhida ('simulate', 'list', 'exit')
-        """
-        print("\n--- Menu Principal ---")
-        print("1 - Iniciar Simulação")
-        print("2 - Listar Veículos")
-        print("3 - Sair")
-        
-        choice = input("\nEscolha (1/2/3): ").strip()
-        
-        if choice == '1':
-            return 'simulate'
-        elif choice == '2':
-            return 'list'
-        elif choice == '3':
-            return 'exit'
-        else:
-            print("⚠ Opção inválida")
-            return 'exit'
-
-
 def run_simulation(database):
     """
     Executa o fluxo completo de simulação.
@@ -147,16 +124,28 @@ def run_simulation(database):
     
     input("Pressione ENTER para iniciar a simulação...")
     
-    # Cria e executa visualizador
-    print("\n🎬 Iniciando visualização animada...\n")
+    # Modo headless (sem visualização)
+    if viz_options.get('headless', False):
+        print("\n⚡ Executando em modo rápido (sem visualização)...\n")
+        
+        # Executa simulação completa
+        while not simulation.is_finished():
+            simulation.step()
+        
+        print("✓ Simulação concluída!\n")
     
-    visualizer = Visualizer(
-        simulation,
-        interval=100,  # 100ms = 10 FPS
-        **viz_options
-    )
-    
-    visualizer.run()
+    # Modo com visualização
+    else:
+        print("\n🎬 Iniciando visualização animada...\n")
+        
+        visualizer = Visualizer(
+            simulation,
+            interval=100,  # 100ms = 10 FPS
+            show_times=viz_options.get('show_times', True),
+            show_distances=viz_options.get('show_distances', False)
+        )
+        
+        visualizer.run()
     
     # Mostra estatísticas finais
     print("\n" + "="*60)
@@ -184,19 +173,9 @@ def main():
         print("\n📂 Carregando dados...")
         database = load_dataset("../data/dataset.json")
         print("✓ Dados carregados com sucesso!")
-        
-        # Loop principal
-        while True:
-            action = Menu.main_menu()
-            
-            if action == 'simulate':
-                run_simulation(database)
-            elif action == 'list':
-                list_vehicles(database)
-            elif action == 'exit':
-                print("\n👋 Até logo!\n")
-                break
-    
+
+        run_simulation(database)
+
     except KeyboardInterrupt:
         print("\n\n⚠ Simulação interrompida pelo utilizador\n")
     except Exception as e:

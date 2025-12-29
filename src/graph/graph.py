@@ -3,6 +3,39 @@ from graph.position import Position
 import matplotlib.pyplot as plt
 
 class Graph:
+    def calculate_path_metrics(self, path):
+        """
+        Calcula a distância e tempo total de um caminho (lista de IDs de nós).
+        Args:
+            path (List[int]): Lista de IDs de nós representando o caminho
+        Returns:
+            Tuple[float, float]: (distância total em metros, tempo total em minutos)
+        """
+        total_distance = 0.0
+        total_time = 0.0
+        if not path or len(path) < 2:
+            return total_distance, total_time
+        for i in range(len(path) - 1):
+            node_id = path[i]
+            next_id = path[i + 1]
+            # Procura a aresta entre node_id e next_id
+            edge = next((e for e in self.edges[node_id] if e["target"] == next_id), None)
+            if edge:
+                total_distance += edge["distance"]
+                total_time += edge.get("time_minutes", 0.0)
+        return total_distance, total_time
+    
+    def find_closest_node(self, position):
+        """Retorna o nó mais próximo da posição dada."""
+        min_dist = float('inf')
+        closest = None
+        for node in self.nodes:
+            dist = node.position.distance_to(position)
+            if dist < min_dist:
+                min_dist = dist
+                closest = node
+        return closest
+    
     def __init__(self, directed=False):
         self.nodes = []
         self.edges = {}

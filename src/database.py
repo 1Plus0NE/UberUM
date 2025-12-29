@@ -2,7 +2,7 @@ import json
 
 from graph.position import Position
 from location import create_location_graph
-from vehicle.vehicle import Vehicle, Eletric, Combustion, Hybrid, Vehicle_Status
+from vehicle import Vehicle, Eletric, Combustion, Hybrid, Vehicle_Status
 from request import Request
 from events import load_events_from_config
 
@@ -10,12 +10,21 @@ class Database:
     '''
     Represents the current database of a simulation
     '''
-    def __init__(self, vehicles, graph, event_manager=None):
+    def __init__(self, vehicles, graph, fuel_stations=None, charging_stations=None, event_manager=None):
         self.vehicles = vehicles
         self.graph = graph
+        self.fuel_stations = fuel_stations if fuel_stations is not None else []
+        self.charging_stations = charging_stations if charging_stations is not None else []
         self.event_manager = event_manager
-        #self.requests = requests
     
+    '''
+    Lists all vehicles in the database 
+    '''
+    def list_vehicles(self):
+        print("\n--- Lista de Veículos ---\n")
+        for v in self.vehicles:
+            print(f"[{v.id}] {v.name} ({v.vehicle_type.__class__.__name__}) - Condutor: {v.driver} - Posição atual: {v.start_point}")
+        print(f"\nTotal: {len(self.vehicles)} veículos\n")
 
 def get_position_from_node_id(graph, node_id: int) -> Position:
     node = graph.get_node(node_id)
@@ -93,31 +102,27 @@ def load_dataset(dataset_path) -> Database:
             passengers=req["passengers"],
             id=req.get("id", None)
         ))
-
-    db = Database(vehicles, graph)
-    db.requests = requests  # Adiciona requests ao objeto Database
     
-    # Marca nós como fuel stations (bombas de gasolina)
+    
+
+    # Marcar nós das estações no grafo
     fuel_stations = dataset.get("fuel_stations", [])
-    for station in fuel_stations:
-        node_id = station["node_id"]
-        node = graph.get_node(node_id)
+    charging_stations = dataset.get("charging_stations", [])
+    for fs in fuel_stations:
+        node = graph.get_node(fs["node_id"])
         if node:
             node.node_type = "fuel"
-            print(f"✓ Nó {node_id} marcado como bomba de gasolina")
-    
-    # Marca nós como charging stations (postos de carregamento)
-    charging_stations = dataset.get("charging_stations", [])
-    for station in charging_stations:
-        node_id = station["node_id"]
-        node = graph.get_node(node_id)
+    for cs in charging_stations:
+        node = graph.get_node(cs["node_id"])
         if node:
             node.node_type = "charging"
-            print(f"✓ Nó {node_id} marcado como posto de carregamento")
-    
+
+    db = Database(vehicles, graph, fuel_stations=fuel_stations, charging_stations=charging_stations)
+    db.requests = requests  # Adiciona requests ao objeto Database
+
     # Carrega eventos (clima e estradas fechadas) se existirem no dataset
     events_config = dataset.get("events", {})
     if events_config:
         db.event_manager = load_events_from_config(graph, events_config)
-    
+
     return db
