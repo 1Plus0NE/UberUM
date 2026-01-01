@@ -15,6 +15,8 @@ def bfs(start: Position, goal: Position, graph: Graph) -> Tuple[float, float, Li
             return total_distance, total_time, path
         visited.add(current.id)
         for edge in graph.edges[current.id]:
+            if not edge.get("open", True):
+                continue
             neighbor = graph.get_node(edge["target"])
             if neighbor.id not in visited:
                 queue.append((neighbor, path + [neighbor.id]))
