@@ -48,7 +48,8 @@
       "end_point": 8,
       "requested_time": 480,
       "multiple_people": false,
-      "passengers": 1
+      "passengers": 1,
+      "eco_friendly": true
     },
     {
       "id": 2,
@@ -56,7 +57,8 @@
       "end_point": 50,
       "requested_time": 510,
       "multiple_people": true,
-      "passengers": 2
+      "passengers": 2,
+      "eco_friendly": true
     },
     {
       "id": 3,
@@ -64,7 +66,8 @@
       "end_point": 25,
       "requested_time": 495,
       "multiple_people": false,
-      "passengers": 1
+      "passengers": 1,
+      "eco_friendly": true
     },
     {
       "id": 4,
@@ -72,7 +75,8 @@
       "end_point": 5,
       "requested_time": 520,
       "multiple_people": true,
-      "passengers": 3
+      "passengers": 3,
+      "eco_friendly": true
     },
     {
       "id": 5,
@@ -80,7 +84,8 @@
       "end_point": 10,
       "requested_time": 540,
       "multiple_people": false,
-      "passengers": 1
+      "passengers": 1,
+      "eco_friendly": false
     },
     {
       "id": 6,
@@ -88,7 +93,8 @@
       "end_point": 45,
       "requested_time": 555,
       "multiple_people": true,
-      "passengers": 2
+      "passengers": 2,
+      "eco_friendly": true
     },
     {
       "id": 7,
@@ -96,7 +102,8 @@
       "end_point": 18,
       "requested_time": 570,
       "multiple_people": false,
-      "passengers": 1
+      "passengers": 1,
+      "eco_friendly": false
     },
     {
       "id": 8,
@@ -104,7 +111,8 @@
       "end_point": 35,
       "requested_time": 600,
       "multiple_people": false,
-      "passengers": 1
+      "passengers": 1,
+      "eco_friendly": true
     },
     {
       "id": 9,
@@ -112,7 +120,8 @@
       "end_point": 48,
       "requested_time": 615,
       "multiple_people": true,
-      "passengers": 4
+      "passengers": 4,
+      "eco_friendly": false
     },
     {
       "id": 10,
@@ -120,7 +129,8 @@
       "end_point": 14,
       "requested_time": 630,
       "multiple_people": false,
-      "passengers": 2
+      "passengers": 2,
+      "eco_friendly": false
     },
     {
       "id": 11,
@@ -128,7 +138,8 @@
       "end_point": 42,
       "requested_time": 660,
       "multiple_people": true,
-      "passengers": 3
+      "passengers": 3,
+      "eco_friendly": true
     },
     {
       "id": 12,
@@ -136,7 +147,8 @@
       "end_point": 6,
       "requested_time": 675,
       "multiple_people": false,
-      "passengers": 1
+      "passengers": 1,
+      "eco_friendly": false
     },
     {
       "id": 13,
@@ -144,7 +156,8 @@
       "end_point": 38,
       "requested_time": 690,
       "multiple_people": false,
-      "passengers": 1
+      "passengers": 1,
+      "eco_friendly": false
     },
     {
       "id": 14,
@@ -152,7 +165,8 @@
       "end_point": 21,
       "requested_time": 720,
       "multiple_people": true,
-      "passengers": 2
+      "passengers": 2,
+      "eco_friendly": true
     },
     {
       "id": 15,
@@ -160,7 +174,8 @@
       "end_point": 31,
       "requested_time": 735,
       "multiple_people": false,
-      "passengers": 1
+      "passengers": 1,
+      "eco_friendly": false
     }
   ],
     "fuel_stations": [
