@@ -74,17 +74,32 @@ class Simulation:
         # Mede tempo de execução
         start_time = time.perf_counter()
         
+        # Prepara vehicle_type se disponível
+        vehicle_type = vehicle.vehicle_type if vehicle else None
+        
         # Verifica se o algoritmo aceita 'criterion' (algoritmos informados: A*, Greedy)
         if 'criterion' in params and self.heuristic:
-            # Passa vehicle_type se disponível e se o algoritmo aceitar
-            vehicle_type = vehicle.vehicle_type if vehicle else None
+            # Prepara argumentos opcionais
+            kwargs = {'criterion': self.heuristic}
+            
             if 'vehicle_type' in params:
-                result = self.search_algorithm_func(start, goal, graph, criterion=self.heuristic, vehicle_type=vehicle_type)
-            else:
-                result = self.search_algorithm_func(start, goal, graph, criterion=self.heuristic)
+                kwargs['vehicle_type'] = vehicle_type
+            
+            # Passa event_manager e current_time para heurísticas de tempo/trânsito
+            if 'event_manager' in params and hasattr(self.db, 'event_manager'):
+                kwargs['event_manager'] = self.db.event_manager
+            
+            if 'current_time' in params:
+                kwargs['current_time'] = self.current_time
+            
+            result = self.search_algorithm_func(start, goal, graph, **kwargs)
         else:
             # Algoritmos não informados (BFS, DFS, Uniform Cost)
-            result = self.search_algorithm_func(start, goal, graph)
+            # Uniform Cost também aceita vehicle_type para cálculo de custo
+            if 'vehicle_type' in params:
+                result = self.search_algorithm_func(start, goal, graph, vehicle_type=vehicle_type)
+            else:
+                result = self.search_algorithm_func(start, goal, graph)
         
         # Regista tempo de execução (em milissegundos)
         end_time = time.perf_counter()

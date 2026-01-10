@@ -55,22 +55,13 @@ def calculate_edge_cost(
     """
     dist_km = distance / 1000.0
     
-    # =========================================================================
-    # 1. COMPONENTE DE TEMPO (tempo de resposta)
-    # =========================================================================
+
     # Tempo já vem em minutos, normaliza para a escala base
     tempo_normalizado = time / TEMPO_BASE_MIN if TEMPO_BASE_MIN > 0 else time
-    
-    # =========================================================================
-    # 2. COMPONENTE DE CUSTO OPERACIONAL (€)
-    # =========================================================================
+
     custo_euros = _calculate_operational_cost(dist_km, vehicle_type)
     custo_normalizado = custo_euros / CUSTO_BASE_EUR if CUSTO_BASE_EUR > 0 else custo_euros
     
-
-    # =========================================================================
-    # 4. COMPONENTE AMBIENTAL (emissões CO₂)
-    # =========================================================================
     emissoes_g = _calculate_emissions(dist_km, vehicle_type)
     ambiente_normalizado = emissoes_g / EMISSOES_BASE_G if EMISSOES_BASE_G > 0 else emissoes_g
     
