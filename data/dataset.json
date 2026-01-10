@@ -5,31 +5,31 @@
       "id": 1,
       "name": "Peugeot e-208",
       "driver": "João",
-      "capacity": 5,
+      "capacity": 6,
       "status": "IDLE",
       "type": "eletric",
   "start_point": 0,
       "battery_capacity": 45,
       "current_battery": 40,
-      "battery_consumption": 16
+      "battery_consumption": 6
     },
     {
       "id": 2,
       "name": "Audi A3",
       "driver": "Maria",
-      "capacity": 5,
+      "capacity": 4,
       "status": "IDLE",
   "start_point": 0,
       "type": "combustion",
       "fuel_capacity": 40,
       "current_fuel": 30,
-      "fuel_consumption": 15
+      "fuel_consumption": 7
     },
     {
       "id": 3,
       "name": "Toyota Prius",
       "driver": "Carlos",
-      "capacity": 5,
+      "capacity": 4,
       "status": "IDLE",
       "type": "hybrid",
   "start_point": 0,
@@ -38,7 +38,7 @@
       "battery_consumption": 18,
       "fuel_capacity": 40,
       "current_fuel": 35,
-      "fuel_consumption": 20
+      "fuel_consumption": 9
     }
   ],
     "requests": [
@@ -56,7 +56,7 @@
       "end_point": 50,
       "requested_time": 510,
       "multiple_people": true,
-      "passengers": 2
+      "passengers": 6
     },
     {
       "id": 3,
