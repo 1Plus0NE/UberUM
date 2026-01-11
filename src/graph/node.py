@@ -1,15 +1,17 @@
 from graph.position import Position
 
 class Node:
-    def __init__(self, name, position: Position, node_type="generic", capacity=0):
+    def __init__(self, id, position: Position, node_type="generic", capacity=0):
         """
         Representa um ponto da cidade.
-        :param id: identificador único do nodo
-        :param x, y: Coordenadas no mapa (em metros)
-        :param node_type: Tipo do nó ('pickup', 'charging', 'fuel', 'depot', etc.)
-        :param capacity: Capacidade (representar estações ou zonas com limite de veículos)
+        
+        Args:
+            id: Identificador único do nodo
+            position: Posição no mapa (Position com x, y em metros)
+            node_type: Tipo do nó ('pickup', 'charging', 'fuel', 'depot', 'generic')
+            capacity: Capacidade (para estações ou zonas com limite de veículos)
         """
-        self.id = None
+        self.id = id
         self.position = position
         self.node_type = node_type
         self.capacity = capacity

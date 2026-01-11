@@ -3,6 +3,12 @@ Tipos de veículos (Elétrico, Combustão, Híbrido).
 Define as diferentes fontes de energia e consumo dos veículos.
 """
 from abc import ABC, abstractmethod
+import sys
+import os
+
+# Adiciona o diretório pai ao path para imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from config import EMISSIONS_COMBUSTION_G_PER_KM, EMISSIONS_HYBRID_G_PER_KM
 
 
 class VehicleType(ABC):
@@ -68,13 +74,13 @@ class Eletric(VehicleType):
             distance: Distância em metros
         """
         distance_km: float = distance / 1000
-        wasted_battery: float = self.battery_consumption * distance_km
+        wasted_battery: float = (self.battery_consumption / 100) * distance_km
         self.current_battery = max(0.0, self.current_battery - wasted_battery)
 
     def has_enough_battery(self, distance: float) -> bool:
         """Verifica se tem bateria suficiente para a distância."""
         distance_km: float = distance / 1000
-        needed_battery: float = self.battery_consumption * distance_km
+        needed_battery: float = (self.battery_consumption / 100) * distance_km
         return self.current_battery >= needed_battery
     
     def has_enough_energy(self, distance: float) -> bool:
@@ -131,13 +137,13 @@ class Combustion(VehicleType):
             distance: Distância em metros
         """
         distance_km: float = distance / 1000
-        wasted_fuel: float = self.fuel_consumption * distance_km
+        wasted_fuel: float = (self.fuel_consumption / 100) * distance_km
         self.current_fuel = max(0.0, self.current_fuel - wasted_fuel)
 
     def has_enough_fuel(self, distance: float) -> bool:
         """Verifica se tem combustível suficiente para a distância."""
         distance_km: float = distance / 1000
-        needed_fuel: float = self.fuel_consumption * distance_km
+        needed_fuel: float = (self.fuel_consumption / 100) * distance_km
         return self.current_fuel >= needed_fuel
     
     def has_enough_energy(self, distance: float) -> bool:
@@ -164,7 +170,7 @@ class Combustion(VehicleType):
             float: Emissões de CO₂ em gramas
         """
         distance_km = distance / 1000
-        emissions_per_km = 120.0  # g CO₂/km (média para gasolina)
+        emissions_per_km = EMISSIONS_COMBUSTION_G_PER_KM  # g CO₂/km (média para gasolina)
         return emissions_per_km * distance_km
     
     def get_emissions_rate(self) -> float:
@@ -174,7 +180,7 @@ class Combustion(VehicleType):
         Returns:
             float: 120.0 g CO₂/km
         """
-        return 120.0
+        return EMISSIONS_COMBUSTION_G_PER_KM
 
 class Hybrid(VehicleType):
     """
@@ -211,29 +217,39 @@ class Hybrid(VehicleType):
         """
         distance_km: float = distance / 1000
         
+        # Consumo por km (não por 100km)
+        battery_consumption_per_km: float = self.battery_consumption / 100
+        fuel_consumption_per_km: float = self.fuel_consumption / 100
+        
         # Tenta usar bateria primeiro
-        needed_battery: float = self.battery_consumption * distance_km
+        needed_battery: float = battery_consumption_per_km * distance_km
         if self.current_battery >= needed_battery:
             # Usa apenas bateria
             self.current_battery = max(0.0, self.current_battery - needed_battery)
         else:
             # Usa bateria restante + combustível
-            remaining_distance_km: float = (needed_battery - self.current_battery) / self.battery_consumption
+            # Distância que consegue percorrer com bateria restante
+            battery_distance_km: float = self.current_battery / battery_consumption_per_km if battery_consumption_per_km > 0 else 0
+            remaining_distance_km: float = distance_km - battery_distance_km
             self.current_battery = 0.0
             
-            needed_fuel: float = self.fuel_consumption * remaining_distance_km
+            needed_fuel: float = fuel_consumption_per_km * remaining_distance_km
             self.current_fuel = max(0.0, self.current_fuel - needed_fuel)
     
     def has_enough_energy(self, distance: float) -> bool:
         """Verifica se tem energia suficiente (bateria + combustível)."""
         distance_km: float = distance / 1000
         
-        # Calcula energia total disponível equivalente
-        battery_distance: float = self.current_battery / self.battery_consumption
-        fuel_distance: float = self.current_fuel / self.fuel_consumption
-        total_distance: float = battery_distance + fuel_distance
+        # Consumo por km (não por 100km)
+        battery_consumption_per_km: float = self.battery_consumption / 100 if self.battery_consumption > 0 else 0
+        fuel_consumption_per_km: float = self.fuel_consumption / 100 if self.fuel_consumption > 0 else 0
         
-        return total_distance >= distance_km
+        # Calcula distância total que consegue percorrer
+        battery_distance_km: float = self.current_battery / battery_consumption_per_km if battery_consumption_per_km > 0 else 0
+        fuel_distance_km: float = self.current_fuel / fuel_consumption_per_km if fuel_consumption_per_km > 0 else 0
+        total_distance_km: float = battery_distance_km + fuel_distance_km
+        
+        return total_distance_km >= distance_km
     
     def battery_percentage(self) -> float:
         """Retorna a percentagem de bateria restante."""
@@ -260,8 +276,11 @@ class Hybrid(VehicleType):
         """
         distance_km = distance / 1000
         
+        # Consumo por km (não por 100km)
+        battery_consumption_per_km = self.battery_consumption / 100 if self.battery_consumption > 0 else 0
+        
         # Calcula quanto pode percorrer com bateria
-        battery_distance_km = self.current_battery / self.battery_consumption if self.battery_consumption > 0 else 0
+        battery_distance_km = self.current_battery / battery_consumption_per_km if battery_consumption_per_km > 0 else 0
         
         # Se tem bateria suficiente, não emite
         if battery_distance_km >= distance_km:
@@ -269,7 +288,7 @@ class Hybrid(VehicleType):
         
         # Se não, emite apenas pela parte em combustível
         fuel_distance_km = distance_km - battery_distance_km
-        emissions_per_km = 90.0  # g CO₂/km (híbridos são mais eficientes)
+        emissions_per_km = EMISSIONS_HYBRID_G_PER_KM  # g CO₂/km (híbridos são mais eficientes)
         return emissions_per_km * fuel_distance_km
     
     def get_emissions_rate(self) -> float:
@@ -284,4 +303,4 @@ class Hybrid(VehicleType):
         if self.current_battery > 0:
             return 0.0
         # Se não tem bateria, usa combustível
-        return 90.0
+        return EMISSIONS_HYBRID_G_PER_KM

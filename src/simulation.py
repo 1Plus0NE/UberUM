@@ -49,10 +49,16 @@ class Simulation:
             'total_distance': 0,
             'total_time': 0,
             'total_fuel_cost': 0.0,
-            'requests_not_served': 0
+            'requests_not_served': 0,
+            'requests_in_progress': 0
         }
         
         # Estatísticas de tempo de procura do algoritmo
+        self.search_times = []  # Lista de tempos de cada procura (em ms)
+        
+        # Aplica eventos iniciais (clima/trânsito) no início da simulação
+        if database.event_manager:
+            database.event_manager.apply_events_to_edges(self.current_time)
         self.search_times = []  # Lista de tempos de cada procura (em ms)
     
     def search_algorithm(self, start, goal, graph, vehicle=None):
@@ -115,7 +121,10 @@ class Simulation:
             'requests_completed': 0,
             'requests_pending': len(self.requests),
             'total_distance': 0,
-            'total_time': 0
+            'total_time': 0,
+            'total_fuel_cost': 0.0,
+            'requests_not_served': 0,
+            'requests_in_progress': 0
         }
         self.search_times = []  # Reset tempos de procura
     
@@ -165,8 +174,8 @@ class Simulation:
         available_vehicles = self.get_available_vehicles_for_request(request)
         
         if not available_vehicles:
-            if request.eco_friendly:
-                return None
+            # Não há veículos disponíveis (eco_friendly ou não)
+            return None
         
         best_vehicle = None
         best_cost = float('inf')
@@ -377,6 +386,7 @@ class Simulation:
         # Aplica eventos de clima/trânsito baseados no tempo atual
         # (atualiza tempos das arestas a cada 30 minutos de simulação)
         if self.db.event_manager and self.current_time % 30 == 0:
+            print("Aplicando eventos de clima/trânsito...")
             self.db.event_manager.apply_events_to_edges(self.current_time)
         
         # Processa novos requests

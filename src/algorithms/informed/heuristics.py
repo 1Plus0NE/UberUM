@@ -1,12 +1,19 @@
 # Funções de heurística centralizadas
 from typing import Optional
 from graph.position import Position
-from refuel_config import PRECO_BATERIA, PRECO_COMBUSTIVEL
 from vehicle.vehicle_types import Eletric, Combustion, Hybrid, VehicleType
+import sys
+import os
 
-DEFAULT_SPEED_KMH = 50.0  # Velocidade média padrão (quando veículo não especificado)
-COST_PER_KM = 0.50    # Custo por km (combustível/desgaste) - fallback
-COST_PER_MIN = 0.20   # Custo por minuto (salário motorista/oportunidade)
+# Adiciona o diretório pai ao path para imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+from config import (
+    PRECO_BATERIA, PRECO_COMBUSTIVEL,
+    DEFAULT_SPEED_KMH, COST_PER_KM, COST_PER_MIN,
+    EURO_TO_METERS, CO2_TO_METERS,
+    TRAFFIC_PENALTIES, TRAFFIC_PROPAGATION_FACTOR,
+    EMISSIONS_COMBUSTION_G_PER_KM
+)
 
 
 # =============================================================================
@@ -74,7 +81,6 @@ def _heuristic_cost(dist_meters: float, dist_km: float, speed_kmh: float,
     else:
         custo_euros = dist_km * COST_PER_KM
     
-    EURO_TO_METERS = 200.0  # 1€ equivale a 200m de "distância equivalente"
     return custo_euros * EURO_TO_METERS
 
 
@@ -90,7 +96,7 @@ def _heuristic_environmental(dist_meters: float, dist_km: float, speed_kmh: floa
     """
     if vehicle_type is None:
         # Sem veículo, assume combustão média
-        emissoes_g = 120.0 * dist_km
+        emissoes_g = EMISSIONS_COMBUSTION_G_PER_KM * dist_km
     elif isinstance(vehicle_type, Eletric):
         # Elétricos não têm emissões, mas precisamos de uma heurística válida
         # Usa distância como fallback (já é a opção mais "verde")
@@ -110,10 +116,9 @@ def _heuristic_environmental(dist_meters: float, dist_km: float, speed_kmh: floa
             consumo_combustivel_por_km = vehicle_type.fuel_consumption / 100.0
             emissoes_g = consumo_combustivel_por_km * 2300.0 * combustao_km
     else:
-        emissoes_g = 120.0 * dist_km
+        emissoes_g = EMISSIONS_COMBUSTION_G_PER_KM * dist_km
     
     # Converte emissões para "distância equivalente" para compatibilidade
-    CO2_TO_METERS = 6
     return emissoes_g * CO2_TO_METERS
 
 
@@ -127,20 +132,6 @@ def _heuristic_traffic_avoidance(dist_meters: float, dist_km: float, speed_kmh: 
     esta heurística aplica uma penalização preventiva para evitar entrar em
     zonas congestionadas, assumindo que nós próximos também terão trânsito.
     """
-    # Penalização base por nível de trânsito (multiplicadores agressivos)
-    # Penaliza mais do que o multiplicador real porque queremos EVITAR estas zonas
-    TRAFFIC_PENALTIES = {
-        'clear': 1.0,
-        'light': 1.3,
-        'moderate': 1.8,    # Mais agressivo que o multiplicador real (1.3)
-        'heavy': 2.5,       # Mais agressivo que o multiplicador real (1.5)
-        'congested': 4.0,   # Mais agressivo que o multiplicador real (2.0)
-    }
-    
-    # Fator de propagação: assume que trânsito afeta área maior
-    # Quanto maior o trânsito, maior a probabilidade de nós próximos também terem
-    PROPAGATION_FACTOR = 1.5
-    
     base_heuristic = dist_meters
     
     if event_manager is None or node_id is None:
@@ -155,7 +146,7 @@ def _heuristic_traffic_avoidance(dist_meters: float, dist_km: float, speed_kmh: 
     # Aplica penalização extra se trânsito moderado ou pior
     # (zonas com muito trânsito provavelmente têm trânsito nos nós adjacentes)
     if penalty > 1.3:
-        penalty *= PROPAGATION_FACTOR
+        penalty *= TRAFFIC_PROPAGATION_FACTOR
     
     return base_heuristic * penalty
 

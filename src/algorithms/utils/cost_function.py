@@ -12,28 +12,21 @@ custos das arestas (uniform_cost e a_star).
 """
 from typing import Optional
 from vehicle.vehicle_types import VehicleType, Eletric, Combustion, Hybrid
-from refuel_config import PRECO_BATERIA, PRECO_COMBUSTIVEL
+import sys
+import os
 
-# =============================================================================
-# PESOS DOS CRITÉRIOS (somam 1.0)
-# =============================================================================
-PESO_TEMPO = 0.35           # Tempo de resposta (importante para satisfação)
-PESO_CUSTO = 0.50           # Custo operacional (€)
-PESO_AMBIENTE = 0.15        # Sustentabilidade ambiental (emissões CO₂)
-
-# =============================================================================
-# CONSTANTES DE NORMALIZAÇÃO (para trazer tudo à mesma escala)
-# =============================================================================
-# Base: 1km de distância como referência
-TEMPO_BASE_MIN = 1.2        # ~1.2 min para percorrer 1km a 50km/h
-CUSTO_BASE_EUR = 0.15       # ~0.15€ por km (média entre elétrico e combustão)
-EMISSOES_BASE_G = 60.0      # ~60g CO₂/km (média considerando mix de veículos)
+# Adiciona o diretório pai ao path para imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+from config import (
+    PRECO_BATERIA, PRECO_COMBUSTIVEL,
+    PESO_TEMPO, PESO_CUSTO, PESO_AMBIENTE,
+    TEMPO_BASE_MIN, CUSTO_BASE_EUR, EMISSOES_BASE_G
+)
 
 def calculate_edge_cost(
     distance: float,
     time: float,
     vehicle_type: Optional[VehicleType] = None,
-    event_multiplier: float = 1.0
 ) -> float:
     """
     Calcula o custo unificado de uma aresta considerando múltiplos critérios.
@@ -48,7 +41,6 @@ def calculate_edge_cost(
         distance: Distância da aresta em metros
         time: Tempo base da aresta em minutos (pode já incluir trânsito/clima)
         vehicle_type: Tipo de veículo (opcional, para cálculos precisos)
-        event_multiplier: Multiplicador de eventos (trânsito/clima) já aplicado ao tempo
     
     Returns:
         float: Custo unificado da aresta (valor normalizado)

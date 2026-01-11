@@ -39,9 +39,14 @@ def greedy_bfs(start: Position, goal: Position, graph: Graph, criterion: str = '
     
     came_from = {}
     visited = set()
+    in_open_set = {start_node.id}  # Rastreia nós já adicionados ao open_set
     
     while open_set:
         _, _, current = heapq.heappop(open_set)
+        
+        # Ignora se já foi visitado (pode acontecer com nós duplicados no heap)
+        if current.id in visited:
+            continue
         
         if current.id == goal_node.id:
             path = []
@@ -59,8 +64,10 @@ def greedy_bfs(start: Position, goal: Position, graph: Graph, criterion: str = '
             if not edge.get("open", True):
                 continue
             neighbor = graph.get_node(edge["target"])
-            if neighbor.id not in visited:
+            # Só adiciona se não foi visitado E não está já no open_set
+            if neighbor.id not in visited and neighbor.id not in in_open_set:
                 came_from[neighbor.id] = current
+                in_open_set.add(neighbor.id)
                 # Calcula heurística baseada no critério
                 h_score = calculate_heuristic(neighbor.position, goal_node.position, criterion,
                                               vehicle_type=vehicle_type, event_manager=event_manager, 

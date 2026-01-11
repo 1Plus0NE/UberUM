@@ -1,14 +1,15 @@
 """
 Configurações de reabastecimento/recarga de veículos.
+NOTA: Estas constantes são re-exportadas do config.py para manter compatibilidade.
 """
 
-# Tempos de abastecimento/recarga em minutos
-REFUEL_TIME = 6  # Tempo para abastecer combustível (minutos)
-RECHARGE_TIME = 30  # Tempo para recarregar bateria (minutos)
+from config import (
+    REFUEL_TIME,
+    RECHARGE_TIME,
+    SAFETY_MARGIN,
+    PRECO_BATERIA,
+    PRECO_COMBUSTIVEL
+)
 
-# Margem de segurança - percentagem mínima de energia/combustível recomendada
-SAFETY_MARGIN = 0.15  # 15% de margem de segurança
-
-# Preços fixos para custo operacional
-PRECO_BATERIA = 0.20  # €/kWh (exemplo, bem mais barato)
-PRECO_COMBUSTIVEL = 1.80  # €/L (exemplo)
+# Re-exporta todas as constantes para manter compatibilidade com imports existentes
+__all__ = ['REFUEL_TIME', 'RECHARGE_TIME', 'SAFETY_MARGIN', 'PRECO_BATERIA', 'PRECO_COMBUSTIVEL']

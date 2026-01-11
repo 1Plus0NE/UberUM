@@ -1,6 +1,12 @@
 from graph.node import Node
 from graph.position import Position
 import matplotlib.pyplot as plt
+import sys
+import os
+
+# Adiciona o diretório pai ao path para imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from config import SCALE_FACTOR, DEFAULT_EDGE_SPEED_KMH
 
 class Graph:
     def calculate_path_metrics(self, path):
@@ -59,7 +65,7 @@ class Graph:
             return self.nodes[node_id]
         return None
 
-    def add_edge(self, id1, id2, distance=None, edge_speed=50, travel_time=None, open=True):
+    def add_edge(self, id1, id2, distance=None, edge_speed=None, travel_time=None, open=True):
         """
         Adiciona uma aresta entre dois nós.
 
@@ -70,6 +76,10 @@ class Graph:
             travel_time (float): Tempo de viagem em segundos (se fornecido, usa este em vez de calcular).
             open (bool): Se a estrada está aberta. Default=True.
         """
+        # Usa velocidade padrão se não fornecida
+        if edge_speed is None:
+            edge_speed = DEFAULT_EDGE_SPEED_KMH
+            
         n1 = self.get_node(id1)
         n2 = self.get_node(id2)
         if not n1 or not n2: # nunca acontece mas quem sabe
@@ -88,10 +98,8 @@ class Graph:
             time_hours = (distance * 0.001) / edge_speed
             time_seconds = time_hours * 3600
         
-        # TRANSFORMAÇÃO DE ESCALA: multiplica por 10 para simular área maior
-        # 200m reais → 2000m (2km) na simulação
-        # 20s reais → 200s na simulação (convertido para minutos: 200/60 ≈ 3.3 min)
-        SCALE_FACTOR = 15
+        # TRANSFORMAÇÃO DE ESCALA: multiplica para simular área maior
+        # Usa SCALE_FACTOR do config.py
         scaled_distance = distance * SCALE_FACTOR
         scaled_time_minutes = (time_seconds * SCALE_FACTOR) / 60.0  # segundos → minutos
 
