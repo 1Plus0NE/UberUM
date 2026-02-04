@@ -68,61 +68,6 @@
             "current_fuel": 38,
             "fuel_consumption": 10,
             "average_speed": 60
-        },
-        {
-            "id": 6,
-            "name": "Honda Civic Hybrid",
-            "driver": "Rita",
-            "capacity": 5,
-            "status": "IDLE",
-            "type": "combustion",
-            "start_point": 0,
-            "battery_capacity": 1.3,
-            "current_battery": 1,
-            "battery_consumption": 25,
-            "fuel_capacity": 50,
-            "current_fuel": 45,
-            "fuel_consumption": 10,
-            "average_speed": 70
-        },
-        {
-            "id": 7,
-            "name": "Peugeot e-305",
-            "driver": "Joana",
-            "capacity": 8,
-            "status": "IDLE",
-            "type": "eletric",
-            "start_point": 0,
-            "battery_capacity": 100,
-            "current_battery": 100,
-            "battery_consumption": 18,
-            "average_speed": 40
-        },
-        {
-            "id": 8,
-            "name": "Nissan Leaf",
-            "driver": "Simão",
-            "capacity": 5,
-            "status": "IDLE",
-            "type": "combustion",
-            "start_point": 0,
-            "fuel_capacity": 50,
-            "current_fuel": 45,
-            "fuel_consumption": 10,
-            "average_speed": 50
-        },
-        {
-            "id": 9,
-            "name": "Ferrari F8",
-            "driver": "Rafael",
-            "capacity": 5,
-            "status": "IDLE",
-            "type": "combustion",
-            "start_point": 0,
-            "fuel_capacity": 50,
-            "current_fuel": 45,
-            "fuel_consumption": 14,
-            "average_speed": 100
         }
     ],
         "requests": [
